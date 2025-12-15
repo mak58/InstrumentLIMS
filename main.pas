@@ -88,7 +88,7 @@ begin
 
   // Simula instrumento lento
   Log('Simulando processamento de 10 minutos...');
-  Sleep(10 * 1000);
+  Sleep(10 * 60 * 1000);
 
   AContext.Connection.IOHandler.WriteLn('OK - Resposta após 10 minutos');
   Log('Resposta enviada.');
