@@ -1,0 +1,97 @@
+unit main;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, IdBaseComponent, IdComponent,
+  IdCustomTCPServer, IdTCPServer, IdContext;
+
+type
+  TForm1 = class(TForm)
+    btn1: TButton;
+    tcpServer: TIdTCPServer;
+    mmoLog: TMemo;
+    procedure IdTCPServer1Disconnect(AContext: TIdContext);
+    procedure btn1Click(Sender: TObject);
+    procedure tcpServerExecute(AContext: TIdContext);
+    procedure tcpServerConnect(AContext: TIdContext);
+  private
+    procedure Log(const S: string);
+  public
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.btn1Click(Sender: TObject);
+begin
+  tcpServer.DefaultPort := 9000;
+  tcpServer.Active := True;
+  Log('Servidor iniciado na porta 9000...');
+end;
+
+procedure TForm1.IdTCPServer1Disconnect(AContext: TIdContext);
+begin
+  Log('Cliente desconectado.');
+end;
+
+procedure TForm1.Log(const S: string);
+begin
+  TThread.Synchronize(nil,
+    procedure begin
+      mmoLog.Lines.Add(TimeToStr(Now) + ' - ' + S);
+    end);
+end;
+
+procedure TForm1.tcpServerConnect(AContext: TIdContext);
+begin
+  Log('Cliente conectado: ' + AContext.Binding.PeerIP);
+end;
+
+procedure TForm1.tcpServerExecute(AContext: TIdContext);
+var
+  Cmd: string;
+begin
+  Cmd := AContext.Connection.IOHandler.ReadLn;
+  Log('Recebido do cliente: ' + Cmd);
+
+  // Simula instrumento lento
+  Log('Simulando processamento de 10 minutos...');
+  Sleep(10 * 60 * 1000);
+
+  AContext.Connection.IOHandler.WriteLn('OK - Resposta após 10 minutos');
+  Log('Resposta enviada.');
+end;
+
+end.
+
+//unit main;
+//
+//interface
+//
+//uses
+//  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+//  Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+//
+//type
+//  TForm1 = class(TForm)
+//  private
+//    { Private declarations }
+//  public
+//    { Public declarations }
+//  end;
+//
+//var
+//  Form1: TForm1;
+//
+//implementation
+//
+//{$R *.dfm}
+//
+//end.
+
